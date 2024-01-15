@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  commentsapp:
+    container_name: commentsapp
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    environment:
+      - DB_HOST=main_db
+    depends_on:
+      - main_db
+  
+  main_db:
+    container_name: main_db
+    image: ${DB_IMAGE}
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - main_db-data:/var/lib/postgresql/data
+
+volumes:
+  main_db-data:
