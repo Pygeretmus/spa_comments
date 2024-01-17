@@ -5,13 +5,16 @@ echo "Wait for db to start..."
 echo ====================================
 sleep 5
 
-
-echo "Creating Migrations..."
-python manage.py makemigrations
-echo ====================================
-
 echo "Starting Migrations..."
 python manage.py migrate
+echo ====================================
+
+echo "Starting tests..."
+python manage.py test 
+echo ====================================
+
+echo "Creating Superuser..."
+python manage.py createsuperuser --no-input 
 echo ====================================
 
 echo "Starting Server..."
