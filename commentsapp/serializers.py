@@ -2,6 +2,8 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from .models import Comments
+
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=30, write_only=True)
@@ -32,3 +34,26 @@ class UserSerializer(serializers.ModelSerializer):
         elif data.get("password"):
             data["password"] = make_password(data.get("password"))
         return data
+
+
+class ReplySerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Comments
+        fields = ("id", "user", "text", "home")
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    replies = ReplySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Comments
+        fields = ("id", "user", "text", "home", "reply", "replies")
+        read_only_fields = ("id", "user")
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        sorted_replies = instance.replies.all().order_by("-id")
+        representation["replies"] = ReplySerializer(sorted_replies, many=True).data
+        return representation
