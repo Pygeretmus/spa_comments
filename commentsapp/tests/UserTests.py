@@ -203,7 +203,6 @@ class UserTests(APITestCase):
             },
         )
 
-        response = self.client.get(reverse("user-list"))
         self.assertEqual(len(self.client.get(reverse("user-list")).data), 3)
         self.assertEqual(
             self.client.get(reverse("user-detail", args=[3])).data,
