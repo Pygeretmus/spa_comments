@@ -24,56 +24,6 @@ class UserTests(APITestCase):
         )
         self.client.force_authenticate(user)
 
-    # -------------------------------------LIST ALL USERS-------------------------------------------
-    def test_user_list_wrong_not_authenticated(self):
-        self.client.logout()
-        response = self.client.get(reverse("user-list"))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(
-            response.data["detail"],
-            ErrorDetail(
-                string="Authentication credentials were not provided.", code="not_authenticated"
-            ),
-        )
-
-    def test_user_list_success(self):
-        response = self.client.get(reverse("user-list"))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-
-    # -------------------------------------RETRIEVE USER--------------------------------------------
-    def test_user_retrieve_wrong_not_authenticated(self):
-        self.client.logout()
-        response = self.client.get(reverse("user-detail", args=[1]))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(
-            response.data["detail"],
-            ErrorDetail(
-                string="Authentication credentials were not provided.", code="not_authenticated"
-            ),
-        )
-
-    def test_user_retrieve_wrong_not_found(self):
-        response = self.client.get(reverse("user-detail", args=[3]))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(
-            response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
-        )
-
-    def test_user_retrieve_success(self):
-        response = self.client.get(reverse("user-detail", args=[1]))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            response.data,
-            {
-                "id": 1,
-                "email": "test1@gmail.com",
-                "username": "test1",
-                "first_name": "test1_name",
-                "last_name": "test1_surname",
-            },
-        )
-
     # ---------------------------------------CREATE USER--------------------------------------------
     def test_user_create_wrong_email_required(self):
         response = self.client.post(
@@ -215,6 +165,56 @@ class UserTests(APITestCase):
             },
         )
 
+    # -------------------------------------LIST ALL USERS-------------------------------------------
+    def test_user_list_wrong_not_authenticated(self):
+        self.client.logout()
+        response = self.client.get(reverse("user-list"))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            response.data["detail"],
+            ErrorDetail(
+                string="Authentication credentials were not provided.", code="not_authenticated"
+            ),
+        )
+
+    def test_user_list_success(self):
+        response = self.client.get(reverse("user-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+
+    # -------------------------------------RETRIEVE USER--------------------------------------------
+    def test_user_retrieve_wrong_not_authenticated(self):
+        self.client.logout()
+        response = self.client.get(reverse("user-detail", args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            response.data["detail"],
+            ErrorDetail(
+                string="Authentication credentials were not provided.", code="not_authenticated"
+            ),
+        )
+
+    def test_user_retrieve_wrong_not_found(self):
+        response = self.client.get(reverse("user-detail", args=[4]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
+        )
+
+    def test_user_retrieve_success(self):
+        response = self.client.get(reverse("user-detail", args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data,
+            {
+                "id": 1,
+                "email": "test1@gmail.com",
+                "username": "test1",
+                "first_name": "test1_name",
+                "last_name": "test1_surname",
+            },
+        )
+
     # ---------------------------------------DESTROY USER-------------------------------------------
     def test_user_destroy_wrong_not_authenticated(self):
         self.client.logout()
@@ -239,7 +239,7 @@ class UserTests(APITestCase):
         )
 
     def test_user_destroy_wrong_not_found(self):
-        response = self.client.delete(reverse("user-detail", args=[3]))
+        response = self.client.delete(reverse("user-detail", args=[4]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
@@ -299,7 +299,7 @@ class UserTests(APITestCase):
         )
 
     def test_user_update_wrong_not_found(self):
-        response = self.client.put(reverse("user-detail", args=[3]))
+        response = self.client.put(reverse("user-detail", args=[4]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
@@ -441,7 +441,7 @@ class UserTests(APITestCase):
         )
 
     def test_user_partial_update_wrong_not_found(self):
-        response = self.client.patch(reverse("user-detail", args=[3]))
+        response = self.client.patch(reverse("user-detail", args=[4]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             response.data["detail"], ErrorDetail(string="Not found.", code="not_found")

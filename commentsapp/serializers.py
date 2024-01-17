@@ -51,3 +51,9 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comments
         fields = ("id", "user", "text", "home", "reply", "replies")
         read_only_fields = ("id", "user")
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        sorted_replies = instance.replies.all().order_by("-id")
+        representation["replies"] = ReplySerializer(sorted_replies, many=True).data
+        return representation

@@ -1,11 +1,10 @@
+from commentsapp.models import Comments
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APITestCase
-
-from commentsapp.models import Comments
 
 
 class CommentsTests(APITestCase):
@@ -31,47 +30,6 @@ class CommentsTests(APITestCase):
             password=make_password("string"),
         )
         Comments.objects.create(user=user, text="to disagree!", reply=comment)
-
-    # -----------------------------------LIST ALL COMMENTS------------------------------------------
-    def test_comment_list_wrong_not_authenticated(self):
-        self.client.logout()
-        response = self.client.get(reverse("comment-list"))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(
-            response.data["detail"],
-            ErrorDetail(
-                string="Authentication credentials were not provided.", code="not_authenticated"
-            ),
-        )
-
-    def test_comment_list_success(self):
-        response = self.client.get(reverse("comment-list"))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-
-    # -----------------------------------RETRIEVE COMMENT-------------------------------------------
-    def test_comment_retrieve_wrong_not_authenticated(self):
-        self.client.logout()
-        response = self.client.get(reverse("comment-detail", args=[1]))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(
-            response.data["detail"],
-            ErrorDetail(
-                string="Authentication credentials were not provided.", code="not_authenticated"
-            ),
-        )
-
-    def test_comment_retrieve_wrong_not_found(self):
-        response = self.client.get(reverse("comment-detail", args=[3]))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(
-            response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
-        )
-
-    def test_comment_retrieve_success(self):
-        response = self.client.get(reverse("comment-detail", args=[1]))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["home"], "https://google.com")
 
     # -------------------------------------CREATE COMMENT-------------------------------------------
     def test_comment_create_wrong_text_required(self):
@@ -102,6 +60,47 @@ class CommentsTests(APITestCase):
             {"id": 3, "user": 1, "text": "string", "home": "", "reply": None, "replies": []},
         )
 
+    # -----------------------------------LIST ALL COMMENTS------------------------------------------
+    def test_comment_list_wrong_not_authenticated(self):
+        self.client.logout()
+        response = self.client.get(reverse("comment-list"))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            response.data["detail"],
+            ErrorDetail(
+                string="Authentication credentials were not provided.", code="not_authenticated"
+            ),
+        )
+
+    def test_comment_list_success(self):
+        response = self.client.get(reverse("comment-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+
+    # -----------------------------------RETRIEVE COMMENT-------------------------------------------
+    def test_comment_retrieve_wrong_not_authenticated(self):
+        self.client.logout()
+        response = self.client.get(reverse("comment-detail", args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            response.data["detail"],
+            ErrorDetail(
+                string="Authentication credentials were not provided.", code="not_authenticated"
+            ),
+        )
+
+    def test_comment_retrieve_wrong_not_found(self):
+        response = self.client.get(reverse("comment-detail", args=[4]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
+        )
+
+    def test_comment_retrieve_success(self):
+        response = self.client.get(reverse("comment-detail", args=[1]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["home"], "https://google.com")
+
     # -------------------------------------DESTROY COMMENT------------------------------------------
 
     def test_comment_destroy_wrong_not_authenticated(self):
@@ -127,7 +126,7 @@ class CommentsTests(APITestCase):
         )
 
     def test_comment_destroy_wrong_not_found(self):
-        response = self.client.delete(reverse("comment-detail", args=[3]))
+        response = self.client.delete(reverse("comment-detail", args=[4]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
@@ -151,7 +150,7 @@ class CommentsTests(APITestCase):
         )
 
     def test_comment_update_wrong_not_found(self):
-        response = self.client.put(reverse("comment-detail", args=[3]))
+        response = self.client.put(reverse("comment-detail", args=[4]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
@@ -212,7 +211,7 @@ class CommentsTests(APITestCase):
         )
 
     def test_comment_partial_update_wrong_not_found(self):
-        response = self.client.patch(reverse("comment-detail", args=[3]))
+        response = self.client.patch(reverse("comment-detail", args=[4]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(
             response.data["detail"], ErrorDetail(string="Not found.", code="not_found")
